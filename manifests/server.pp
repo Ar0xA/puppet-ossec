@@ -35,10 +35,24 @@ class ossec::server (
         'CentOS', 'RedHat' : {
           package { 'ossec-hids':
             ensure   => $ossec_package_status,
+            require => Yumrepo['ossec']
           }
           package { $ossec::common::hidsserverpackage:
             ensure  => $ossec_package_status,
-            require => Class['mysql::client'],
+            require => [
+              Class['mysql::client'],
+              Yumrepo['ossec']
+            ]
+          }
+          if $ossec_database {
+            package { $ossec::common::hidsmysqlpackage:
+              ensure  => $ossec_package_status,
+              require => [
+                Class['mysql::client'],
+                Yumrepo['ossec']
+              ],
+              notify  => Service[$ossec::common::hidsserverservice]
+            }
           }
         }
         default: {
@@ -93,12 +107,6 @@ class ossec::server (
     validate_string($ossec_database_password)
     validate_string($ossec_database_type)
     validate_string($ossec_database_username)
-
-    package { $ossec::common::hidsmysqlpackage:
-      ensure  => installed,
-      require => Class['mysql::client'],
-      notify  => Service[$ossec::common::hidsserverservice]
-    }
 
     # Enable the database in the config
     concat::fragment { 'ossec.conf_80' :

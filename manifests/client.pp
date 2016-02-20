@@ -25,7 +25,10 @@ class ossec::client(
       }
       package { $ossec::common::hidsagentpackage:
         ensure  => $ossec_package_status,
-        require => Package['ossec-hids'],
+        require => [
+         Yumrepo['ossec'],
+         Package['ossec-hids']
+        ]
       }
     }
     default: { fail('OS family not supported') }
