@@ -118,3 +118,9 @@
 
  Jonathan Gazeley <jonathan.gazeley@bristol.ac.uk>:
   * Remove custom SELinux policy
+
+2016-02-20Jonathan Gazeley <jonathan.gazeley@bristol.ac.uk> - 1.11.0
+===========================================================
+
+ Jonathan Gazeley <jonathan.gazeley@bristol.ac.uk>:
+  * Various fixes and improvements (thanks @coreone)
