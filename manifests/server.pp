@@ -27,7 +27,7 @@ class ossec::server (
   # install package
   case $::osfamily {
     'Debian' : {
-	  if $ossec_use_own_repo {
+	  if $ossec_use_own_repo == false {
           package { $ossec::common::hidsserverpackage:
             ensure  => $ossec_package_status,
             require => Apt::Source['alienvault-ossec'],
@@ -41,34 +41,50 @@ class ossec::server (
     'RedHat' : {
       case $::operatingsystem {
         'CentOS', 'RedHat' : {
-          package { 'ossec-hids':
-            ensure   => $ossec_package_status,
-			if $ossec_use_own_repo {
+		  if $ossec_use_own_repo == false {
+              package { 'ossec-hids':
+                ensure   => $ossec_package_status,
                 require => Yumrepo['ossec']
-			}
-          }
-          package { $ossec::common::hidsserverpackage:
-            ensure  => $ossec_package_status,
-            require => [
-              Class['mysql::client'],
-			  if $ossec_use_own_repo {
-                  Yumrepo['ossec']
+              }
+              package { $ossec::common::hidsserverpackage:
+                ensure  => $ossec_package_status,
+                require => [
+                  Class['mysql::client'],
+                      Yumrepo['ossec']
+                ]
 			  }
-            ]
-          }
-          if $ossec_database {
-            package { $ossec::common::hidsmysqlpackage:
-              ensure  => $ossec_package_status,
-              require => [
-                Class['mysql::client'],
-				if $ossec_use_own_repo {
-                    Yumrepo['ossec']
+			  if $ossec_database {
+                package { $ossec::common::hidsmysqlpackage:
+                  ensure  => $ossec_package_status,
+                  require => [
+                    Class['mysql::client'],
+                        Yumrepo['ossec']
+                  ],
+                  notify  => Service[$ossec::common::hidsserverservice]
 				}
-              ],
-              notify  => Service[$ossec::common::hidsserverservice]
-            }
-          }
-        }
+             }
+           } else {
+                  package { 'ossec-hids':
+                    ensure   => $ossec_package_status,
+                  }
+                 package { $ossec::common::hidsserverpackage:
+                   ensure  => $ossec_package_status,
+                    require => [
+                      Class['mysql::client'],
+                    ]				  
+			     }
+				 if $ossec_database {
+                    package { $ossec::common::hidsmysqlpackage:
+                      ensure  => $ossec_package_status,
+                      require => [
+                        Class['mysql::client'],
+                      ],
+                      notify  => Service[$ossec::common::hidsserverservice]
+                    }
+                 }
+		   }
+		}
+
         default: {
           fail("Operating system not supported: ${::operatingsystem}")
         }
