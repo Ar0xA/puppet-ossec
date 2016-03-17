@@ -69,10 +69,10 @@ class ossec::common (
             require     => Class['epel'],
             includepkgs => 'ossec*',
           }
+		  # Set up EPEL repo
+          include epel
+	  
 	  }
-
-      # Set up EPEL repo
-      include epel
 
       $hidsagentservice  = 'ossec-hids'
       $hidsagentpackage  = 'ossec-hids-client'
