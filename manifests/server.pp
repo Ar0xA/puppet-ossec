@@ -27,12 +27,16 @@ class ossec::server (
   # install package
   case $::osfamily {
     'Debian' : {
-      package { $ossec::common::hidsserverpackage:
-        ensure  => $ossec_package_status,
-		if $ossec_use_own_repo {
+	  if $ossec_use_own_repo {
+          package { $ossec::common::hidsserverpackage:
+            ensure  => $ossec_package_status,
             require => Apt::Source['alienvault-ossec'],
-		}
-      }
+		  }
+      } else {
+	      package { $ossec::common::hidsserverpackage:
+            ensure  => $ossec_package_status,
+		  }
+	  }
     }
     'RedHat' : {
       case $::operatingsystem {
