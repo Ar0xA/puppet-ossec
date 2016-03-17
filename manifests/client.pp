@@ -5,7 +5,9 @@ class ossec::client(
   $ossec_emailnotification = 'yes',
   $ossec_scanpaths         = [ {'path' => '/etc,/usr/bin,/usr/sbin', 'report_changes' => 'no', 'realtime' => 'no'}, {'path' => '/bin,/sbin', 'report_changes' => 'no', 'realtime' => 'no'} ],
   $ossec_ip_fact           = '::ipaddress',
-  $ossec_package_status    = 'installed'
+  $ossec_package_status    = 'installed',
+   #true = dont use atomicorp/epel repo
+  $ossec_use_own_repo       = true,
 ) {
   include ossec::common
 
@@ -15,18 +17,24 @@ class ossec::client(
     'Debian' : {
       package { $ossec::common::hidsagentpackage:
         ensure  => $ossec_package_status,
-        require => Apt::Source['alienvault-ossec'],
+		if $ossec_use_own_repo {
+            require => Apt::Source['alienvault-ossec'],
+		}
       }
     }
     'RedHat' : {
       package { 'ossec-hids':
         ensure  => $ossec_package_status,
-        require => Yumrepo['ossec'],
+		if $ossec_use_own_repo {
+            require => Yumrepo['ossec'],
+		}
       }
       package { $ossec::common::hidsagentpackage:
         ensure  => $ossec_package_status,
         require => [
-         Yumrepo['ossec'],
+		 if $ossec_use_own_repo {
+             Yumrepo['ossec'],
+		 }
          Package['ossec-hids']
         ]
       }

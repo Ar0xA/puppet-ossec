@@ -18,6 +18,8 @@ class ossec::server (
   $ossec_database_password             = undef,
   $ossec_database_type                 = undef,
   $ossec_database_username             = undef,
+  #true = dont use atomicorp/epel repo
+  $ossec_use_own_repo                  = true,
 ) {
   include ossec::common
   include mysql::client
@@ -27,7 +29,9 @@ class ossec::server (
     'Debian' : {
       package { $ossec::common::hidsserverpackage:
         ensure  => $ossec_package_status,
-        require => Apt::Source['alienvault-ossec'],
+		if $ossec_use_own_repo {
+            require => Apt::Source['alienvault-ossec'],
+		}
       }
     }
     'RedHat' : {
@@ -35,13 +39,17 @@ class ossec::server (
         'CentOS', 'RedHat' : {
           package { 'ossec-hids':
             ensure   => $ossec_package_status,
-            require => Yumrepo['ossec']
+			if $ossec_use_own_repo {
+                require => Yumrepo['ossec']
+			}
           }
           package { $ossec::common::hidsserverpackage:
             ensure  => $ossec_package_status,
             require => [
               Class['mysql::client'],
-              Yumrepo['ossec']
+			  if $ossec_use_own_repo {
+                  Yumrepo['ossec']
+			  }
             ]
           }
           if $ossec_database {
@@ -49,7 +57,9 @@ class ossec::server (
               ensure  => $ossec_package_status,
               require => [
                 Class['mysql::client'],
-                Yumrepo['ossec']
+				if $ossec_use_own_repo {
+                    Yumrepo['ossec']
+				}
               ],
               notify  => Service[$ossec::common::hidsserverservice]
             }
