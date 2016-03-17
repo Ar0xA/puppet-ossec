@@ -12,7 +12,7 @@ class ossec::common (
         /(lucid|precise|trusty)/: {
           $hidsserverservice = 'ossec'
           $hidsserverpackage = 'ossec-hids'
-          if $ossec_use_own_repo {
+          if $ossec_use_own_repo ==false {
               apt::source { 'alienvault-ossec':
                 ensure   => present,
                 comment  => 'This is the AlienVault Ubuntu repository for Ossec',
@@ -34,7 +34,7 @@ class ossec::common (
         /^(jessie|wheezy)$/: {
           $hidsserverservice = 'ossec'
           $hidsserverpackage = 'ossec-hids'
-		  if $ossec_use_own_repo {
+		  if $ossec_use_own_repo == false {
               apt::source { 'alienvault-ossec':
                 ensure      => present,
                 comment     => 'This is the AlienVault Debian repository for Ossec',
@@ -57,7 +57,7 @@ class ossec::common (
       }
     }
     'Redhat' : {
-	  if $ossec_use_own_repo {
+	  if $ossec_use_own_repo == false {
           # Set up OSSEC repo
           yumrepo { 'ossec':
             descr       => 'CentOS / Red Hat Enterprise Linux $releasever - ossec.net',
@@ -86,7 +86,7 @@ class ossec::common (
         /^7/:    {$redhatversion='el7'}
         default: { }
       }
-	  if $ossec_use_own_repo {	  
+	  if $ossec_use_own_repo == false {	  
           package { 'inotify-tools':
             ensure  => present,
             require => Class['epel'],
