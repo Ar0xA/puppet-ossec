@@ -86,10 +86,16 @@ class ossec::common (
         /^7/:    {$redhatversion='el7'}
         default: { }
       }
-      package { 'inotify-tools':
-        ensure  => present,
-        require => Class['epel'],
-      }
+	  if $ossec_use_own_repo {	  
+          package { 'inotify-tools':
+            ensure  => present,
+            require => Class['epel'],
+          }
+	  } else {
+	        package { 'inotify-tools':
+                ensure  => present,
+          }
+	  }
     }
     default: { fail('This ossec module has not been tested on your distribution') }
   }
