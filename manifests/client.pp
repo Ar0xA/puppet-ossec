@@ -7,7 +7,6 @@ class ossec::client(
   $ossec_ip_fact           = '::ipaddress',
   $ossec_package_status    = 'installed',
    #true = dont use atomicorp/epel repo
-  $ossec_use_own_repo       = true,
 ) {
   include ossec::common
 
@@ -15,29 +14,43 @@ class ossec::client(
 
   case $::osfamily {
     'Debian' : {
-      package { $ossec::common::hidsagentpackage:
-        ensure  => $ossec_package_status,
-		if $ossec_use_own_repo {
-            require => Apt::Source['alienvault-ossec'],
-		}
-      }
+	  if $ossec::common::ossec_use_own_repo {
+          package { $ossec::common::hidsagentpackage:
+            ensure  => $ossec_package_status,
+                require => Apt::Source['alienvault-ossec'],
+		  }
+      } else {
+	      package { $ossec::common::hidsagentpackage:
+            ensure  => $ossec_package_status,
+		  }
+	  }
     }
+	
     'RedHat' : {
-      package { 'ossec-hids':
-        ensure  => $ossec_package_status,
-		if $ossec_use_own_repo {
-            require => Yumrepo['ossec'],
-		}
-      }
-      package { $ossec::common::hidsagentpackage:
-        ensure  => $ossec_package_status,
-        require => [
-		 if $ossec_use_own_repo {
-             Yumrepo['ossec'],
-		 }
-         Package['ossec-hids']
-        ]
-      }
+	  if $ossec::common::ossec_use_own_repo {
+          package { 'ossec-hids':
+            ensure  => $ossec_package_status,
+                require => Yumrepo['ossec'],
+		  }
+		  package { $ossec::common::hidsagentpackage:
+            ensure  => $ossec_package_status,
+              require => [
+                Yumrepo['ossec'],
+                Package['ossec-hids']
+              ]
+          }
+      } else {
+          package { 'ossec-hids':
+            ensure  => $ossec_package_status,
+		  }
+		  package { $ossec::common::hidsagentpackage:
+            ensure  => $ossec_package_status,
+              require => [
+                Package['ossec-hids']
+              ]
+          }	  
+	  }
+
     }
     default: { fail('OS family not supported') }
   }

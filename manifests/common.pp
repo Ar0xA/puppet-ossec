@@ -1,6 +1,6 @@
 # Package installation
 class ossec::common (
-  $ossec_use_own_repo       = true,
+  $ossec_use_own_repo       = false,
   ){
   case $::osfamily {
     'Debian' : {
