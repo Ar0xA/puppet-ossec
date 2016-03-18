@@ -199,7 +199,7 @@ class ossec::server (
       }
       Ossec::Agentkey<<| |>>
   } else {
-      #TODO: ugly hack, cant we use agentkey function? or restart after 
+      #TODO: ugly hack, cant we use agentkey function? or perhaps just let it fill with the agent registration and restart of the service then
        exec {"fill_client_key":
         command => '/bin/echo "127.0.0.1,default" > /var/ossec/dftagent &&  /var/ossec/bin/manage_agents -f /dftagent && rm -f /var/ossec/dftagent',
          onlyif => "/bin/test -n `/bin/cat /var/ossec/etc/client.keys | /bin/grep 001`",
