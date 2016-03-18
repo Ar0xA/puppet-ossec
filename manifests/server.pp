@@ -152,6 +152,7 @@ class ossec::server (
       order   => 20,
       notify  => Service[$ossec::common::hidsserverservice]
     }
+
   }
 
   concat::fragment { 'ossec.conf_90' :
@@ -162,15 +163,23 @@ class ossec::server (
   }
   
   #do we want to run authd?
+  #TODO: use client signed certificates
   if $ossec_enable_authd {
-      exec { "make_authd_key_file":
+
+    exec { "make_authd_key_file":
 	      command => '/bin/openssl genrsa -out /var/ossec/etc/sslmanager.key 2048',
 		  unless => '/bin/test -f /var/ossec/etc/sslmanager.key'
-	  }
-	  exec { "make_authd_cert_file":
+	} ->
+	exec { "make_authd_cert_file":
 	      command => "/bin/openssl req -new -x509 -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 365 -subj \"/C=NL/ST=Utrecht/L=Utrecht/O=CMC/CN=${::domain}\"",
 		  unless => '/bin/test -f /var/ossec/etc/sslmanager.cert'
-	  }
+	} ->
+  	service {"ossec-authd":
+	    ensure => running,
+		start => "/var/ossec/bin/ossec-authd >/dev/null 2>&1 &",
+		stop => "kill $(ps aux | grep '/var/ossec/bin/ossec-authd' | awk '{print $2}')",
+		pattern => "/var/ossec/bin/ossec-authd",
+	}	
   }
   
   if $ossec::common::ossec_override_keyfile == false {
@@ -189,6 +198,7 @@ class ossec::server (
       }
       Ossec::Agentkey<<| |>>
   } else {
+      #TODO: ugly hack, cant we use agentkey function? or restart after 
        exec {"fill_client_key":
         command => '/bin/echo "127.0.0.1,default" > /var/ossec/dftagent &&  /var/ossec/bin/manage_agents -f /dftagent && rm -f /var/ossec/dftagent',
          onlyif => "/bin/test -n `/bin/cat /var/ossec/etc/client.keys | /bin/grep 001`",
