@@ -175,6 +175,12 @@ class ossec::server (
         notify  => Service[$ossec::common::hidsserverservice]
       }
       Ossec::Agentkey<<| |>>
+  } else {
+       exec {"fill_client_key":
+        command => '/bin/echo "127.0.0.1,default" > /var/ossec/dftagent &&  /var/ossec/bin/manage_agents -f /dftagent',
+         onlyif => "/bin/test -n `/bin/cat /var/ossec/etc/client.keys | /bin/grep 001`",
+		 notify  => Service[$ossec::common::hidsserverservice]
+     }
   }
 
 }
