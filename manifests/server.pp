@@ -18,6 +18,7 @@ class ossec::server (
   $ossec_database_password             = undef,
   $ossec_database_type                 = undef,
   $ossec_database_username             = undef,
+  $ossec_enable_authd                  = false,
 ) {
   include ossec::common
   include mysql::client
@@ -98,7 +99,7 @@ class ossec::server (
     pattern   => $ossec::common::hidsserverservice,
     require   => Package[$ossec::common::hidsserverpackage],
   }
-
+  
   # configure ossec process list
   concat { '/var/ossec/bin/.process_list':
     owner   => 'root',
@@ -158,6 +159,18 @@ class ossec::server (
     content => template('ossec/90_ossec.conf.erb'),
     order   => 90,
     notify  => Service[$ossec::common::hidsserverservice]
+  }
+  
+  #do we want to run authd?
+  if $ossec_enable_authd {
+      exec { "make_authd_key_file":
+	      command => '/bin/openssl genrsa -out /var/ossec/etc/sslmanager.key 2048',
+		  unless => '/bin/test -f /var/ossec/etc/sslmanager.key'
+	  }
+	  exec { "make_authd_cert_file":
+	      command => 'openssl req -new -x509 -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 365 -subj "/C=NL/ST=Utrecht/L=Utrecht/O=CMC/CN=${::domain}"',
+		  unless => '/bin/test -f /var/ossec/etc/sslmanager.cert'
+	  }
   }
   
   if $ossec::common::ossec_override_keyfile == false {
