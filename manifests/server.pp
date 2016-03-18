@@ -179,6 +179,7 @@ class ossec::server (
 		start => "/var/ossec/bin/ossec-authd >/dev/null 2>&1 &",
 		stop => "kill $(ps aux | grep '/var/ossec/bin/ossec-authd' | awk '{print $2}')",
 		pattern => "/var/ossec/bin/ossec-authd",
+		require   => Package[$ossec::common::hidsserverpackage],
 	}	
   }
   
