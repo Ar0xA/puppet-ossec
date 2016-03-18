@@ -168,7 +168,7 @@ class ossec::server (
 		  unless => '/bin/test -f /var/ossec/etc/sslmanager.key'
 	  }
 	  exec { "make_authd_cert_file":
-	      command => '/bin/openssl req -new -x509 -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 365 -subj "/C=NL/ST=Utrecht/L=Utrecht/O=CMC/CN=${::domain}"',
+	      command => "/bin/openssl req -new -x509 -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 365 -subj \"/C=NL/ST=Utrecht/L=Utrecht/O=CMC/CN=${::domain}\"",
 		  unless => '/bin/test -f /var/ossec/etc/sslmanager.cert'
 	  }
   }
