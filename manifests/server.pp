@@ -159,20 +159,22 @@ class ossec::server (
     order   => 90,
     notify  => Service[$ossec::common::hidsserverservice]
   }
-
-  concat { '/var/ossec/etc/client.keys':
-    owner   => 'root',
-    group   => 'ossec',
-    mode    => '0640',
-    notify  => Service[$ossec::common::hidsserverservice],
-    require => Package[$ossec::common::hidsserverpackage],
+  
+  if $ossec::common::ossec_override_keyfile == false {
+      concat { '/var/ossec/etc/client.keys':
+        owner   => 'root',
+        group   => 'ossec',
+        mode    => '0640',
+        notify  => Service[$ossec::common::hidsserverservice],
+        require => Package[$ossec::common::hidsserverpackage],
+      }
+      concat::fragment { 'var_ossec_etc_client.keys_end' :
+        target  => '/var/ossec/etc/client.keys',
+        order   => 99,
+        content => "\n",
+        notify  => Service[$ossec::common::hidsserverservice]
+      }
+      Ossec::Agentkey<<| |>>
   }
-  concat::fragment { 'var_ossec_etc_client.keys_end' :
-    target  => '/var/ossec/etc/client.keys',
-    order   => 99,
-    content => "\n",
-    notify  => Service[$ossec::common::hidsserverservice]
-  }
-  Ossec::Agentkey<<| |>>
 
 }
