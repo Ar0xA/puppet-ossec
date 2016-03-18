@@ -181,6 +181,10 @@ class ossec::server (
          onlyif => "/bin/test -n `/bin/cat /var/ossec/etc/client.keys | /bin/grep 001`",
      }->
      file { '/var/ossec/etc/client.keys':
+	   ensure => 'file',
+	   owner   => 'root',
+       group   => 'ossec',
+       mode    => '0640',
        notify  => Service[$ossec::common::hidsserverservice],
      }
   }
