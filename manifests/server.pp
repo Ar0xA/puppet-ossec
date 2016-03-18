@@ -176,7 +176,7 @@ class ossec::server (
 	} ->
   	service {"ossec-authd":
 	    ensure => running,
-		start => "/var/ossec/bin/ossec-authd >/dev/null 2>&1 &",
+		start => "/var/ossec/bin/ossec-authd -p 1515 >/dev/null 2>&1 &",
 		stop => "/bin/kill $(/bin/ps aux | /bin/grep '/var/ossec/bin/ossec-authd' | /bin/awk '{print $2}')",
 		pattern => "/var/ossec/bin/ossec-authd",
 		require   => Package[$ossec::common::hidsserverpackage],
