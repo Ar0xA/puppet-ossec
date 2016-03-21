@@ -49,6 +49,7 @@ class ossec::client(
               ]
           }	  
 	  }
+	}
 	'windows' : {
 	    package {$ossec::common::hidsagentpackage:
 		    ensure  => $ossec_package_status,
@@ -57,7 +58,6 @@ class ossec::client(
 		}
 	}
 
-    }
     default: { fail('OS family not supported') }
   }
 
