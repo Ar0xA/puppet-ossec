@@ -61,7 +61,7 @@ class ossec::client(
     default: { fail('OS family not supported') }
   }
 
-  if $::osfamily == ('Debian'|'RedHat') {
+  if ($::osfamily == 'Debian') or ($::osfamily == 'RedHat') {
 	  service { $ossec::common::hidsagentservice:
 		ensure    => running,
 		enable    => true,
