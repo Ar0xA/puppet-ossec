@@ -27,7 +27,7 @@ class ossec::client(
 	
     'RedHat' : {
 	  if $ossec::common::ossec_use_own_repo == false {
-          package { $ossec::common::hidsagentpackage:
+          package { 'ossec-hids':
             ensure  => $ossec_package_status,
                 require => Yumrepo['ossec'],
 		  }
@@ -39,7 +39,7 @@ class ossec::client(
               ]
           }
       } else {
-          package { $ossec::common::hidsagentpackage:
+          package { 'ossec-hids':
             ensure  => $ossec_package_status,
 		  }
 		  package { $ossec::common::hidsagentpackage:
