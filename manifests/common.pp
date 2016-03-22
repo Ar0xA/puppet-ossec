@@ -98,6 +98,10 @@ class ossec::common (
           }
 	  }
     }
+	'windows' : {
+	    $hidsagentservice  = 'ossec-agent'
+        $hidsagentpackage  = 'ossec-hids-agent'
+	}
     default: { fail('This ossec module has not been tested on your distribution') }
   }
 }
