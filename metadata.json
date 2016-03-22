@@ -1,6 +1,6 @@
 {
   "name": "jgazeley-ossec",
-  "version": "1.11.0",
+  "version": "1.11.0-cmc-1.0",
   "author": "jgazeley",
   "summary": "Install and configure OSSEC-HIDS client and server",
   "license": "Apache-2.0",
