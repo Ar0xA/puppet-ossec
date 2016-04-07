@@ -25,71 +25,26 @@ class ossec::server (
 
   # install package
   case $::osfamily {
-    'Debian' : {
-	  if  $ossec::common::ossec_use_own_repo == false {
-          package { $ossec::common::hidsserverpackage:
-            ensure  => $ossec_package_status,
-            require => Apt::Source['alienvault-ossec'],
-		  }
-      } else {
-	      package { $ossec::common::hidsserverpackage:
-            ensure  => $ossec_package_status,
-		  }
-	  }
-    }
-    'RedHat' : {
-      case $::operatingsystem {
-        'CentOS', 'RedHat' : {
-		  if  $ossec::common::ossec_use_own_repo == false {
-              package { 'ossec-hids':
-                ensure   => $ossec_package_status,
-                require => Yumrepo['ossec']
-              }
-              package { $ossec::common::hidsserverpackage:
-                ensure  => $ossec_package_status,
-                require => [
-                  Class['mysql::client'],
-                      Yumrepo['ossec']
-                ]
-			  }
+     'RedHat' : {
 			  if $ossec_database {
                 package { $ossec::common::hidsmysqlpackage:
-                  ensure  => $ossec_package_status,
-                  require => [
-                    Class['mysql::client'],
-                        Yumrepo['ossec']
-                  ],
-                  notify  => Service[$ossec::common::hidsserverservice]
-				}
-             }
-           } else {
-                  package { 'ossec-hids':
-                    ensure   => $ossec_package_status,
-                  }
-                 package { $ossec::common::hidsserverpackage:
-                   ensure  => $ossec_package_status,
+                    ensure  => $ossec_package_status,
                     require => [
                       Class['mysql::client'],
-                    ]				  
-			     }
-				 if $ossec_database {
-                    package { $ossec::common::hidsmysqlpackage:
-                      ensure  => $ossec_package_status,
-                      require => [
-                        Class['mysql::client'],
-                      ],
-                      notify  => Service[$ossec::common::hidsserverservice]
-                    }
-                 }
-		   }
-		}
-
-        default: {
-          fail("Operating system not supported: ${::operatingsystem}")
+                    ],
+                    notify  => Service[$ossec::common::hidsserverservice]
+                }
+				}
+        package { 'ossec-hids':
+           ensure   => $ossec_package_status,
         }
-      }
-    }
-    default: { fail("OS family not supported: ${::osfamily}") }
+        package { $ossec::common::hidsserverpackage:
+            ensure  => $ossec_package_status,
+        }
+ 		 }
+     default: {
+         fail("Operating system not supported: ${::operatingsystem}")
+     }
   }
 
   service { $ossec::common::hidsserverservice:
@@ -130,6 +85,7 @@ class ossec::server (
     notify  => Service[$ossec::common::hidsserverservice]
   }
 
+  #if using database
   if $ossec_database {
     validate_string($ossec_database_hostname)
     validate_string($ossec_database_name)
@@ -165,24 +121,24 @@ class ossec::server (
   #do we want to run authd?
   #TODO: use client signed certificates
   if $ossec_enable_authd {
-
-    exec { "make_authd_key_file":
-	      command => '/bin/openssl genrsa -out /var/ossec/etc/sslmanager.key 2048',
-		  unless => '/bin/test -f /var/ossec/etc/sslmanager.key'
-	} ->
-	exec { "make_authd_cert_file":
-	      command => "/bin/openssl req -new -x509 -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 365 -subj \"/C=NL/ST=Utrecht/L=Utrecht/O=CMC/CN=${::domain}\"",
-		  unless => '/bin/test -f /var/ossec/etc/sslmanager.cert'
-	} ->
-  	service {"ossec-authd":
-	    ensure => running,
-		start => "/var/ossec/bin/ossec-authd -p 1515 >/dev/null 2>&1 &",
-		stop => "/bin/kill $(/bin/ps aux | /bin/grep '/var/ossec/bin/ossec-authd' | /bin/awk '{print $2}')",
-		pattern => "/var/ossec/bin/ossec-authd",
-		require   => Package[$ossec::common::hidsserverpackage],
-	}	
+      exec { "make_authd_key_file":
+	        command => '/bin/openssl genrsa -out /var/ossec/etc/sslmanager.key 2048',
+		      unless => '/bin/test -f /var/ossec/etc/sslmanager.key'
+	    } ->
+	    exec { "make_authd_cert_file":
+	        command => "/bin/openssl req -new -x509 -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 365 -subj \"/C=NL/ST=Utrecht/L=Utrecht/O=CMC/CN=${::domain}\"",
+		      unless => '/bin/test -f /var/ossec/etc/sslmanager.cert'
+	    } ->
+  	  service {"ossec-authd":
+	        ensure => running,
+		      start => "/var/ossec/bin/ossec-authd -p 1515 >/dev/null 2>&1 &",
+		      stop => "/bin/kill $(/bin/ps aux | /bin/grep '/var/ossec/bin/ossec-authd' | /bin/awk '{print $2}')",
+		      pattern => "/var/ossec/bin/ossec-authd",
+		      require   => Package[$ossec::common::hidsserverpackage],
+	    }	
   }
   
+  #TODO: rewrite to zookeeper data storage and fill on rerun?
   if $ossec::common::ossec_override_keyfile == false {
       concat { '/var/ossec/etc/client.keys':
         owner   => 'root',

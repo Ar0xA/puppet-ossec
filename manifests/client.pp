@@ -1,6 +1,6 @@
 # Setup for ossec client
 class ossec::client(
-  $ossec_active_response   = true,
+  $ossec_active_response   = false,
   $ossec_server_ip         = undef,
   $ossec_emailnotification = 'yes',
   $ossec_scanpaths         = [ {'path' => '/etc,/usr/bin,/usr/sbin', 'report_changes' => 'no', 'realtime' => 'no'}, {'path' => '/bin,/sbin', 'report_changes' => 'no', 'realtime' => 'no'} ],
@@ -12,20 +12,7 @@ class ossec::client(
   $client_ip = getvar($ossec_ip_fact)
 
   case $::osfamily {
-    'Debian' : {
-	  if $ossec::common::ossec_use_own_repo == false {
-          package { $ossec::common::hidsagentpackage:
-            ensure  => $ossec_package_status,
-                require => Apt::Source['alienvault-ossec'],
-		  }
-      } else {
-	      package { $ossec::common::hidsagentpackage:
-            ensure  => $ossec_package_status,
-		  }
-	  }
-    }
-	
-    'RedHat' : {
+	  'RedHat' : {
 	  if $ossec::common::ossec_use_own_repo == false {
           package { 'ossec-hids':
             ensure  => $ossec_package_status,
@@ -61,7 +48,7 @@ class ossec::client(
     default: { fail('OS family not supported') }
   }
 
-  if ($::osfamily == 'Debian') or ($::osfamily == 'RedHat') {
+  if ($::osfamily == 'RedHat') {
 	  service { $ossec::common::hidsagentservice:
 		ensure    => running,
 		enable    => true,
@@ -89,7 +76,7 @@ class ossec::client(
 		order   => 99,
 		notify  => Service[$ossec::common::hidsagentservice]
 	  }
-
+    #get data from zookeeper (todo), OR use auth (current)
 	  if $::uniqueid {
 		concat { '/var/ossec/etc/client.keys':
 		  owner   => 'root',
