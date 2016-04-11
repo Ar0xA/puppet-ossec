@@ -13,37 +13,23 @@ class ossec::client(
 
   case $::osfamily {
 	  'RedHat' : {
-	  if $ossec::common::ossec_use_own_repo == false {
-          package { 'ossec-hids':
+	      package { 'ossec-hids':
             ensure  => $ossec_package_status,
-                require => Yumrepo['ossec'],
-		  }
-		  package { $ossec::common::hidsagentpackage:
+		    }
+		    package { $ossec::common::hidsagentpackage:
             ensure  => $ossec_package_status,
-              require => [
-                Yumrepo['ossec'],
+            require => [
                 Package['ossec-hids']
-              ]
-          }
-      } else {
-          package { 'ossec-hids':
-            ensure  => $ossec_package_status,
-		  }
-		  package { $ossec::common::hidsagentpackage:
-            ensure  => $ossec_package_status,
-              require => [
-                Package['ossec-hids']
-              ]
-          }	  
+            ]
+        }	  
 	  }
-	}
-	'windows' : {
-	    package {$ossec::common::hidsagentpackage:
-		    ensure  => $ossec_package_status,
-		    provider => 'chocolatey',
-			require => Package['ossec-agent'],
-		}
-	}
+	#'windows' : {
+	#    package {$ossec::common::hidsagentpackage:
+	#	    ensure  => $ossec_package_status,
+	#	    provider => 'chocolatey',
+	#		require => Package['ossec-agent'],
+	#	}
+	#}
 
     default: { fail('OS family not supported') }
   }
@@ -123,7 +109,7 @@ class ossec::client(
 		group   => 'root',
 		mode    => '0644',
 	  }
-  } elsif $::osfamily == 'windows' {
+ # } elsif $::osfamily == 'windows' {
   #TODO
   } else {
       fail('OS family not supported')

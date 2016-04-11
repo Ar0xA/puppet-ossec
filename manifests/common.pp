@@ -18,10 +18,10 @@ class ossec::common ( $ossec_override_keyfile       = false, ) {
           ensure  => present,
       }
 	  }
-	  'windows' : {
-	    $hidsagentservice  = 'ossec-agent'
-      $hidsagentpackage  = 'ossec-hids-agent'
-	  }
+#	  'windows' : {
+#	    $hidsagentservice  = 'ossec-agent'
+#      $hidsagentpackage  = 'ossec-hids-agent'
+#	  }
     default: { fail('This ossec module has not been tested on your distribution') }
   }
 }

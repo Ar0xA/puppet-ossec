@@ -3,7 +3,7 @@ class ossec::server (
   $mailserver_ip                       = undef,
   $ossec_emailto                       = undef,
   $ossec_emailfrom                     = "ossec@${::domain}",
-  $ossec_active_response               = true,
+  $ossec_active_response               = false,
   $ossec_global_host_information_level = 8,
   $ossec_global_stat_level             = 8,
   $ossec_email_alert_level             = 7,
@@ -47,6 +47,7 @@ class ossec::server (
      }
   }
 
+  #we can only continue using redhat anyway
   service { $ossec::common::hidsserverservice:
     ensure    => running,
     enable    => true,
