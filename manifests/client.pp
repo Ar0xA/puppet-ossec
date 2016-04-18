@@ -91,6 +91,7 @@ class ossec::client(
 
 	  # Set log permissions properly to fix
 	  # https://github.com/djjudas21/puppet-ossec/issues/20
+    #logrotate fix centos 7
 	  file { '/var/ossec/logs':
 		ensure  => directory,
 		require => Package[$ossec::common::hidsagentpackage],
@@ -98,7 +99,13 @@ class ossec::client(
 		group   => 'ossec',
 		mode    => '0755',
 		seltype => 'var_log_t',
-	  }
+	  } 
+    file_line { "fix for rotate":
+    ensure => present,
+    line => "su root ossec",
+    path => "/etc/logrotate.d/ossec-hids",
+    after => "rotate 4",
+    }
 
 	  # Fix up the logrotate file with sensible defaults
 		file { '/etc/logrotate.d/ossec-hids':
