@@ -3,5 +3,6 @@
     missingok
     notifempty
     rotate 4
+    su root ossec
 }
 

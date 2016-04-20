@@ -100,13 +100,6 @@ class ossec::client(
 		mode    => '0755',
 		seltype => 'var_log_t',
 	  } 
-    file_line { "fix for rotate":
-    ensure => present,
-    line => "su root ossec",
-    path => "/etc/logrotate.d/ossec-hids",
-    after => "rotate 4",
-    }
-
 	  # Fix up the logrotate file with sensible defaults
 		file { '/etc/logrotate.d/ossec-hids':
 		ensure  => file,
