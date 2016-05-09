@@ -11,7 +11,10 @@ class ossec::common ( $ossec_override_keyfile       = false, ) {
       case $::operatingsystemrelease {
         /^5/:    {$redhatversion='el5'}
         /^6/:    {$redhatversion='el6'}
-        /^7/:    {$redhatversion='el7'}
+        /^7/:    {
+          $redhatversion='el7'
+          $serviceprovider = 'redhat' #workaround. See bug https://tickets.puppetlabs.com/browse/PUP-5296
+        }
         default: { }
       }
 	    package { 'inotify-tools':
