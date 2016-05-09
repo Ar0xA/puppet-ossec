@@ -40,6 +40,7 @@ class ossec::client(
 		enable    => true,
 		hasstatus => $ossec::common::servicehasstatus,
 		pattern   => $ossec::common::hidsagentservice,
+		provider  => $ossec::common::serviceprovider, #workaround. See bug https://tickets.puppetlabs.com/browse/PUP-5296
 		require   => Package[$ossec::common::hidsagentpackage],
 	  }
 
