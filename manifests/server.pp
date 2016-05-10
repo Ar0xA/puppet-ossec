@@ -53,6 +53,7 @@ class ossec::server (
     enable    => true,
     hasstatus => $ossec::common::servicehasstatus,
     pattern   => $ossec::common::hidsserverservice,
+    provider  => $ossec::common::serviceprovider, #workaround. See bug https://tickets.puppetlabs.com/browse/PUP-5296
     require   => Package[$ossec::common::hidsserverpackage],
   }
   
@@ -134,7 +135,8 @@ class ossec::server (
 	        ensure => running,
 		      start => "/var/ossec/bin/ossec-authd -p 1515 >/dev/null 2>&1 &",
 		      stop => "/bin/kill $(/bin/ps aux | /bin/grep '/var/ossec/bin/ossec-authd' | /bin/awk '{print $2}')",
-		      pattern => "/var/ossec/bin/ossec-authd",
+		      status => 'ps -ef | grep ossec-authd | grep -v grep',
+		      provider  => $ossec::common::serviceprovider, #workaround. See bug https://tickets.puppetlabs.com/browse/PUP-5296
 		      require   => Package[$ossec::common::hidsserverpackage],
 	    }	
   }
