@@ -101,6 +101,7 @@ class ossec::client(
 		mode    => '0755',
 		seltype => 'var_log_t',
 	  } 
+
 	  # Fix up the logrotate file with sensible defaults
 		file { '/etc/logrotate.d/ossec-hids':
 		ensure  => file,
@@ -110,6 +111,12 @@ class ossec::client(
 		group   => 'root',
 		mode    => '0644',
 	  }
+
+    #upload and compile custom selinux module for logrotate on the ossec.log file
+    selinux::module {'ossec-logrotate':
+        source => 'puppet:///modules/ossec/ossec-logrotate.te',
+    }
+
  # } elsif $::osfamily == 'windows' {
   #TODO
   } else {
