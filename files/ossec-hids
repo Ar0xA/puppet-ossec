@@ -3,6 +3,11 @@
     missingok
     notifempty
     rotate 4
+    compress
     su root ossec
+    sharedscripts
+    postrotate
+        /sbin/service ossec-hids restart
+    endscript
 }
 
