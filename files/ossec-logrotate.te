@@ -1,35 +1,10 @@
-module ossec_logrotate 1.3;
+module ossec_logrotate 1.6.6;
 
 require {
-        type unconfined_t;
         type var_t;
-        type fs_t;
         type logrotate_t;
-        type sysfs_t;
-        type locate_t;
-        type unconfined_service_t;
-        type var_lib_t;
-        class file { write relabelto getattr create rename };
-        class dir { relabelfrom relabelto getattr write read };
-        class filesystem associate;
+        class file { rename read write open getattr create unlink setattr ioctl };
 }
 
-#============= locate_t ==============
-allow locate_t logrotate_t:dir getattr;
-
 #============= logrotate_t ==============
-allow logrotate_t fs_t:filesystem associate;
-allow logrotate_t self:dir write;
-allow logrotate_t sysfs_t:file write;
-allow logrotate_t self:file rename;
-allow logrotate_t var_lib_t:file create;
-allow logrotate_t var_t:dir read;
-allow logrotate_t var_t:file getattr;
-
-#============= unconfined_service_t ==============
-allow unconfined_service_t logrotate_t:dir { relabelfrom relabelto };
-allow unconfined_service_t logrotate_t:file relabelto;
-
-#============= unconfined_t ==============
-allow unconfined_t logrotate_t:dir relabelto;
-allow unconfined_t logrotate_t:file relabelto;
+allow logrotate_t var_t:file { rename read write open getattr create unlink setattr ioctl };
