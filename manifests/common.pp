@@ -17,10 +17,10 @@ class ossec::common ( $ossec_override_keyfile       = false, ) {
         }
         default: { }
       }
-	    package { 'inotify-tools':
+      package { 'inotify-tools':
           ensure  => present,
       }
-	  }
+    }
 #	  'windows' : {
 #	    $hidsagentservice  = 'ossec-agent'
 #      $hidsagentpackage  = 'ossec-hids-agent'

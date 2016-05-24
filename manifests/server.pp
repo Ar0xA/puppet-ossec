@@ -25,8 +25,8 @@ class ossec::server (
 
   # install package
   case $::osfamily {
-     'RedHat' : {
-			  if $ossec_database {
+    'RedHat' : {
+        if $ossec_database {
                 package { $ossec::common::hidsmysqlpackage:
                     ensure  => $ossec_package_status,
                     require => [
@@ -34,17 +34,17 @@ class ossec::server (
                     ],
                     notify  => Service[$ossec::common::hidsserverservice]
                 }
-				}
+        }
         package { 'ossec-hids':
-           ensure   => $ossec_package_status,
+            ensure   => $ossec_package_status,
         }
         package { $ossec::common::hidsserverpackage:
             ensure  => $ossec_package_status,
         }
- 		 }
-     default: {
-         fail("Operating system not supported: ${::operatingsystem}")
-     }
+      }
+      default: {
+          fail("Operating system not supported: ${::operatingsystem}")
+      }
   }
 
   #we can only continue using redhat anyway
@@ -123,22 +123,21 @@ class ossec::server (
   #do we want to run authd?
   #TODO: use client signed certificates
   if $ossec_enable_authd {
-      exec { "make_authd_key_file":
-	        command => '/bin/openssl genrsa -out /var/ossec/etc/sslmanager.key 2048',
-		      unless => '/bin/test -f /var/ossec/etc/sslmanager.key'
-	    } ->
-	    exec { "make_authd_cert_file":
-	        command => "/bin/openssl req -new -x509 -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 365 -subj \"/C=NL/ST=Utrecht/L=Utrecht/O=CMC/CN=${::domain}\"",
-		      unless => '/bin/test -f /var/ossec/etc/sslmanager.cert'
-	    } ->
-  	  service {"ossec-authd":
-	        ensure => running,
-		      start => "/var/ossec/bin/ossec-authd -p 1515 >/dev/null 2>&1 &",
-		      stop => "/bin/kill $(/bin/ps aux | /bin/grep '/var/ossec/bin/ossec-authd' | /bin/awk '{print $2}')",
-		      status => 'ps -ef | grep ossec-authd | grep -v grep',
-		      provider  => $ossec::common::serviceprovider, #workaround. See bug https://tickets.puppetlabs.com/browse/PUP-5296
-		      require   => Package[$ossec::common::hidsserverpackage],
-	    }	
+      exec { 'make_authd_key_file':
+          command => '/bin/openssl genrsa -out /var/ossec/etc/sslmanager.key 2048',
+          unless  => '/bin/test -f /var/ossec/etc/sslmanager.key'
+      } ->
+      exec { 'make_authd_cert_file':
+          command => "/bin/openssl req -new -x509 -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 365 -subj \"/C=NL/ST=Utrecht/L=Utrecht/O=CMC/CN=${::domain}\"",
+          unless  => '/bin/test -f /var/ossec/etc/sslmanager.cert'
+      } ->
+      service {'ossec-authd':
+          ensure  => running,
+          start   => '/var/ossec/bin/ossec-authd -p 1515 >/dev/null 2>&1 &',
+          stop    => "/bin/kill $(/bin/ps aux | /bin/grep '/var/ossec/bin/ossec-authd' | /bin/awk '{print ${2}}')",
+          pattern => '/var/ossec/bin/ossec-authd',
+          require => Package[$ossec::common::hidsserverpackage],
+      }
   }
   
   #TODO: rewrite to zookeeper data storage and fill on rerun?
@@ -159,17 +158,17 @@ class ossec::server (
       Ossec::Agentkey<<| |>>
   } else {
       #TODO: ugly hack, cant we use agentkey function? or perhaps just let it fill with the agent registration and restart of the service then
-       exec {"fill_client_key":
-        command => '/bin/echo "127.0.0.1,default" > /var/ossec/dftagent &&  /var/ossec/bin/manage_agents -f /dftagent && rm -f /var/ossec/dftagent',
-         onlyif => "/bin/test -n `/bin/cat /var/ossec/etc/client.keys | /bin/grep 001`",
-     }->
-     file { '/var/ossec/etc/client.keys':
-	   ensure => 'file',
-	   owner   => 'root',
-       group   => 'ossec',
-       mode    => '0640',
-       notify  => Service[$ossec::common::hidsserverservice],
-     }
+      exec {'fill_client_key':
+          command => '/bin/echo "127.0.0.1,default" > /var/ossec/dftagent &&  /var/ossec/bin/manage_agents -f /dftagent && rm -f /var/ossec/dftagent',
+          onlyif  => '/bin/test -n `/bin/cat /var/ossec/etc/client.keys | /bin/grep 001`',
+      }->
+      file { '/var/ossec/etc/client.keys':
+          ensure => 'file',
+          owner  => 'root',
+          group  => 'ossec',
+          mode   => '0640',
+          notify => Service[$ossec::common::hidsserverservice],
+      }
   }
 
 }
