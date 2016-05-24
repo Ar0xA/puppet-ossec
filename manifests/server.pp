@@ -53,6 +53,7 @@ class ossec::server (
     enable    => true,
     hasstatus => $ossec::common::servicehasstatus,
     pattern   => $ossec::common::hidsserverservice,
+    provider  => $ossec::common::serviceprovider, #workaround. See bug https://tickets.puppetlabs.com/browse/PUP-5296
     require   => Package[$ossec::common::hidsserverpackage],
   }
   
