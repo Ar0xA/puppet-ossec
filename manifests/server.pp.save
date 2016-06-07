@@ -171,7 +171,7 @@ class ossec::server (
   #TODO: rewrite to zookeeper data storage and fill on rerun?
   if $ossec::common::ossec_override_keyfile == false {
       #here we make the client.keys file with data from zookeeper
-
+      #requires at least one agent
       concat { '/var/ossec/etc/client.keys':
         owner   => 'root',
         group   => 'ossec',
@@ -184,14 +184,18 @@ class ossec::server (
       #get client info
       #generate client key
       #add key to file
-      $resultsetZK = zkget("/puppet/production/nodes/$ossec_server_ip/client-keys",1)
-      foreach ($resultsetZK) {
-      }
+      $resultsetZK = zkget("/puppet/production/nodes/$ossec_server_ip/client-keys",0, 'children')
+      $resultsetZK.each |String $resultsetZK| {
+          $agentinfoName = $resultsetZK
+          $agentinfoID= zkget("/puppet/production/nodes/$ossec_server_ip/client-keys/$(resultsetZK)/id",1)
+          $agentinfoIP= zkget("/puppet/production/nodes/$ossec_server_ip/client-keys/$(resultsetZK)/ip",1)
 
-      ossec::agentkey{ "ossec_agent_${agent_name}_client":
-          agent_id         => $zkagent_id,
-          agent_name       => $agent_name,
-          agent_ip_address => $agent_ip_address,
+          ossec::agentkey{ "ossec_agent_${agent_name}_client":
+              agent_id         => $agentinfoID,
+              agent_name       => $agentinfoName,
+              agent_ip_address => agentinfoIP, 
+          }
+
       }
 
       concat::fragment { 'var_ossec_etc_client.keys_end' :

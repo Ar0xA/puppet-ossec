@@ -2,10 +2,10 @@ define ossec::create_store_agentkey(
     $agent_use_zookeeper,
     $agent_name,
     $agent_ip_address,
+    $ossec_server_ip,
 ) {
-    include ossec::common
-
-    if ($ossec_use_zookeeper) {
+    
+    if ($agent_use_zookeeper) {
 
         include zk_puppet
         #does entry already exist? if so, why bother?

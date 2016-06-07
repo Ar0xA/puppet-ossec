@@ -88,6 +88,7 @@ class ossec::client(
         agent_use_zookeeper => $ossec_use_zookeeper,
         agent_name => $ossec_client_hostname,
         agent_ip_address => $ossec_client_ip,
+        ossec_server_ip =>$ossec_server_ip,
     }
 
 
@@ -150,6 +151,7 @@ class ossec::client(
             agent_use_zookeeper => $ossec_use_zookeeper,
             agent_name => $ossec_client_hostname,
             agent_ip_address => $ossec_client_ip,
+            ossec_server_ip =>$ossec_server_ip,
        }
 
   } else {
