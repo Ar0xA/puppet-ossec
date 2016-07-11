@@ -9,10 +9,11 @@ define ossec::create_store_agentkey(
 
         include zk_puppet
         #does entry already exist? if so, why bother?
-        $zkexist = zkget("/puppet/production/nodes/$ossec_server_ip/client-keys/$agent_name",1)
+
+        $zkexist = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys/${agent_name}/id",1)
         if ($zkexist[0].empty) {
 
-            $zkagent_num = zkget("/puppet/production/nodes/$ossec_server_ip/client-num",1)
+            $zkagent_num = zkget("/puppet/production/nodes/${ossec_server_ip}/client-num",1)
 
             #does not exist, so add it with value 1 (first agent)
             if ($zkagent_num[0].empty) {
