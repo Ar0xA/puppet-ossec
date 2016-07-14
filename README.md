@@ -82,6 +82,9 @@ class { "ossec::client":
  * `$ossec_database_password` The password to use when connecting to the database
  * `$ossec_database_type` The type of database server
  * `$ossec_database_username` The username to use when connecting to the database
+ * `$ossec_use_zookeeper` (default: true) To use zookeeper backend instead of authd
+ * `$ossec_enable_authd` (default: false) Specify to start up authd or not. 
+ * `ossec_override_keyfile` (default: false) Specify if you want override and  fill the client.key file using a fake key for the first run.
 
 #### function ossec::email_alert
  * `$alert_email` email to send to
@@ -118,6 +121,7 @@ About active-response mechanism, check the documentation (and extends the functi
  * `$ossec_scanpaths` Specify hash of paths to scan, with realtime and report_changes (see below for configuration)
  * `$ossec_ip_fact` (default: ::ipaddress) allow override of the fact used to find the client's IP address.  This is useful for when you have multiple IP addresses on a given client and `::ipaddress` returns the incorrect IP for connection to the OSSEC server
  * `$ossec_package_status` (default: installed) Package status. See https://docs.puppetlabs.com/references/latest/type.html#package-attribute-ensure
+ * `$ossec_use_zookeeper` (default: true) To use zookeeper backend instead of authd
 
 ### ossec_scanpaths configuration
 
@@ -180,5 +184,7 @@ This module is currently forked from djjudas21/puppet-ossec (who forked it from 
 ## Release Notes
 
 Author Nicolas Zin
+
 ~~Maintained by Jonathan Gazeley~~
+
 Maintained by Conclusion Mission Critical
