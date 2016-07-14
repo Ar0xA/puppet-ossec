@@ -86,9 +86,9 @@ class ossec::client(
 
     ossec::create_store_agentkey{ "ossec_agent_${ossec_client_hostname}_client":
         agent_use_zookeeper => $ossec_use_zookeeper,
-        agent_name => $ossec_client_hostname,
-        agent_ip_address => $ossec_client_ip,
-        ossec_server_ip =>$ossec_server_ip,
+        agent_name          => $ossec_client_hostname,
+        agent_ip_address    => $ossec_client_ip,
+        ossec_server_ip     =>$ossec_server_ip,
     }
 
 
@@ -120,39 +120,38 @@ class ossec::client(
     }
 
   } elsif $::osfamily == 'windows' {
-       service { 'OssecSvc':
-           ensure => running,
-           enable => true,
-           pattern => 'OssecSvc',
-           hasstatus => true,
-           require => Package[$ossec::common::hidsagentservice],
-       }
-       concat { 'C:/Program Files (x86)/ossec-agent/ossec.conf':
-           owner   => 'Administrator',
-           group   => 'Administrators',
-           mode    => '0440',
-           notify  => Service['OssecSvc'],
-           require => Package[$ossec::common::hidsagentservice],
-       }
-       concat::fragment { 'ossec.conf_10' :
-           target  => 'C:/Program Files (x86)/ossec-agent/ossec.conf',
-           content => template('ossec/10_ossec_agent.conf.erb'),
-           order   => 10,
-           notify  => Service['OssecSvc'],
-       }
-       concat::fragment { 'ossec.conf_99' :
-           target  => 'C:/Program Files (x86)/ossec-agent/ossec.conf',
-           content => template('ossec/99_ossec_agent.conf.erb'),
-           order   => 99,
-           notify  => Service['OssecSvc'],
-       }
-
-       ossec::create_store_agentkey{ "ossec_agent_${ossec_client_hostname}_client":
-            agent_use_zookeeper => $ossec_use_zookeeper,
-            agent_name => $ossec_client_hostname,
-            agent_ip_address => $ossec_client_ip,
-            ossec_server_ip =>$ossec_server_ip,
-       }
+    service { 'OssecSvc':
+      ensure    => running,
+      enable    => true,
+      pattern   => 'OssecSvc',
+      hasstatus => true,
+      require   => Package[$ossec::common::hidsagentservice],
+    }
+    concat { 'C:/Program Files (x86)/ossec-agent/ossec.conf':
+      owner   => 'Administrator',
+      group   => 'Administrators',
+      mode    => '0440',
+      notify  => Service['OssecSvc'],
+      require => Package[$ossec::common::hidsagentservice],
+    }
+    concat::fragment { 'ossec.conf_10' :
+      target  => 'C:/Program Files (x86)/ossec-agent/ossec.conf',
+      content => template('ossec/10_ossec_agent.conf.erb'),
+      order   => 10,
+      notify  => Service['OssecSvc'],
+    }
+    concat::fragment { 'ossec.conf_99' :
+      target  => 'C:/Program Files (x86)/ossec-agent/ossec.conf',
+      content => template('ossec/99_ossec_agent.conf.erb'),
+      order   => 99,
+      notify  => Service['OssecSvc'],
+    }
+    ossec::create_store_agentkey{ "ossec_agent_${ossec_client_hostname}_client":
+      agent_use_zookeeper => $ossec_use_zookeeper,
+      agent_name          => $ossec_client_hostname,
+      agent_ip_address    => $ossec_client_ip,
+      ossec_server_ip     =>$ossec_server_ip,
+    }
 
   } else {
       fail('OS family not supported')

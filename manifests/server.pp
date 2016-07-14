@@ -102,12 +102,12 @@ class ossec::server (
 
     # Fix up the logrotate file with sensible defaults
     file { '/etc/logrotate.d/ossec-hids':
-    ensure  => file,
-    source  => 'puppet:///modules/ossec/ossec-hids',
+    ensure => file,
+    source => 'puppet:///modules/ossec/ossec-hids',
     #require => Package[$ossec::common::hidsagentpackage],
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0644',
     }
 
     #upload and compile custom selinux module for logrotate on the ossec.log file
@@ -202,10 +202,10 @@ class ossec::server (
 
       }
       concat::fragment { 'var_ossec_etc_client.keys_end' :
-       target  => '/var/ossec/etc/client.keys',
-       order   => 99,
-       content => "\n",
-       notify  => Service[$ossec::common::hidsserverservice]
+        target  => '/var/ossec/etc/client.keys',
+        order   => 99,
+        content => "\n",
+        notify  => Service[$ossec::common::hidsserverservice]
       }
 
       

@@ -24,10 +24,10 @@ define ossec::create_store_agentkey(
 
 
             #this info is used by both the client and master to generate the keys
-            zkput("/puppet/production/nodes/$ossec_server_ip/client-keys/$agent_name/ip","$agent_ip_address")
+            zkput("/puppet/production/nodes/${ossec_server_ip}/client-keys/${agent_name}/ip",$agent_ip_address)
             #so, whats our number then?
-            zkput("/puppet/production/nodes/$ossec_server_ip/client-keys/$agent_name/id","$zkagent_id")
-            zkput("/puppet/production/nodes/$ossec_server_ip/client-num","$zkagent_id")
+            zkput("/puppet/production/nodes/${ossec_server_ip}/client-keys/${agent_name}/id",$zkagent_id)
+            zkput("/puppet/production/nodes/${ossec_server_ip}/client-num",$zkagent_id)
 
             if $zkagent_id {
                 concat { '/var/ossec/etc/client.keys':
