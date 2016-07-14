@@ -188,27 +188,26 @@ class ossec::server (
       #TODO: check of alle keys er zijn
       
       $resultsetzk = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys",0,'children')
-      notify{"what i got: ${resultsetzk}":}
-      
+            
       $resultsetzk.each |String $peer| {
           $agent_ip_address = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys/${peer}/ip",1)[0]
           $zkagent_id = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys/${peer}/id",1)[0]
           $agent_name= $peer
-          notify {"data: ${zkagent_id} ${agent_ip_address} ${agent_name}":}      
-
+          
           ossec::agentkey{ "ossec_agent_${agent_name}_client":
             agent_id         => $zkagent_id,
             agent_name       => $agent_name,
             agent_ip_address => $agent_ip_address,
           }
-          concat::fragment { 'var_ossec_etc_client.keys_end' :
-            target  => '/var/ossec/etc/client.keys',
-            order   => 99,
-            content => "\n",
-            notify  => Service[$ossec::common::hidsserverservice]
-          }
 
       }
+      concat::fragment { 'var_ossec_etc_client.keys_end' :
+       target  => '/var/ossec/etc/client.keys',
+       order   => 99,
+       content => "\n",
+       notify  => Service[$ossec::common::hidsserverservice]
+      }
+
       
   } else {
       #TODO: ugly hack, cant we use agentkey function? or perhaps just let it fill with the agent registration and restart of the service then
