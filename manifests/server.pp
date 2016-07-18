@@ -19,6 +19,7 @@ class ossec::server (
   $ossec_database_type                 = undef,
   $ossec_database_username             = undef,
   $ossec_enable_authd                  = false,
+  $ossec_enable_zookeeper              = true,
 ) {
   include ossec::common
   include mysql::client
@@ -87,6 +88,33 @@ class ossec::server (
     notify  => Service[$ossec::common::hidsserverservice]
   }
 
+    # Set log permissions properly to fix
+    # https://github.com/djjudas21/puppet-ossec/issues/20
+    #logrotate fix centos 7
+    file { '/var/ossec/logs':
+    ensure  => directory,
+    #require => Package[$ossec::common::hidsagentpackage],
+    owner   => 'ossec',
+    group   => 'ossec',
+    mode    => '0755',
+    seltype => 'var_log_t',
+    }
+
+    # Fix up the logrotate file with sensible defaults
+    file { '/etc/logrotate.d/ossec-hids':
+    ensure => file,
+    source => 'puppet:///modules/ossec/ossec-hids',
+    #require => Package[$ossec::common::hidsagentpackage],
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0644',
+    }
+
+    #upload and compile custom selinux module for logrotate on the ossec.log file
+    selinux::module {'ossec_logrotate':
+        source => 'puppet:///modules/ossec/ossec-logrotate.te',
+    }
+
   #if using database
   if $ossec_database {
     validate_string($ossec_database_hostname)
@@ -142,6 +170,8 @@ class ossec::server (
   
   #TODO: rewrite to zookeeper data storage and fill on rerun?
   if $ossec::common::ossec_override_keyfile == false {
+      #here we make the client.keys file with data from zookeeper
+
       concat { '/var/ossec/etc/client.keys':
         owner   => 'root',
         group   => 'ossec',
@@ -149,13 +179,36 @@ class ossec::server (
         notify  => Service[$ossec::common::hidsserverservice],
         require => Package[$ossec::common::hidsserverpackage],
       }
+      
+      #iterate through all data from zookeeper
+      #get client info
+      #generate client key
+      #add key to file
+      $ossec_server_ip = $::ipaddress
+      #TODO: check of alle keys er zijn
+      
+      $resultsetzk = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys",0,'children')
+            
+      $resultsetzk.each |String $peer| {
+          $agent_ip_address = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys/${peer}/ip",1)[0]
+          $zkagent_id = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys/${peer}/id",1)[0]
+          $agent_name= $peer
+          
+          ossec::agentkey{ "ossec_agent_${agent_name}_client":
+            agent_id         => $zkagent_id,
+            agent_name       => $agent_name,
+            agent_ip_address => $agent_ip_address,
+          }
+
+      }
       concat::fragment { 'var_ossec_etc_client.keys_end' :
         target  => '/var/ossec/etc/client.keys',
         order   => 99,
         content => "\n",
         notify  => Service[$ossec::common::hidsserverservice]
       }
-      Ossec::Agentkey<<| |>>
+
+      
   } else {
       #TODO: ugly hack, cant we use agentkey function? or perhaps just let it fill with the agent registration and restart of the service then
       exec {'fill_client_key':

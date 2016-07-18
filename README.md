@@ -1,13 +1,5 @@
 # ossec
 
-UPDATED: this is no longer maintained by the original author. That is why this is now configured to how we 
-prefer to use it, Debian things will be removed as will some settings that are not required and make
-it needlessly complex. - Ar0xA
-
-=================
-OLD
-=================
-
 #### Table of Contents
 
 1. [Overview](#overview)
@@ -20,7 +12,9 @@ OLD
 
 ## Overview
 
-This module installs and configures OSSEC-HIDS client and server.
+This module installs and configures OSSEC-HIDS client and server. It default uses the Zookeeper backend (https://zookeeper.apache.org/) to store data needed by both server and client. It does not support puppetdb; it still does support authd (linux only)
+
+It currently **only** runs on RHEL. Windows client is being developed.
 
 ## Module Description
 
@@ -88,6 +82,9 @@ class { "ossec::client":
  * `$ossec_database_password` The password to use when connecting to the database
  * `$ossec_database_type` The type of database server
  * `$ossec_database_username` The username to use when connecting to the database
+ * `$ossec_use_zookeeper` (default: true) To use zookeeper backend instead of authd
+ * `$ossec_enable_authd` (default: false) Specify to start up authd or not. 
+ * `ossec_override_keyfile` (default: false) Specify if you want override and  fill the client.key file using a fake key for the first run.
 
 #### function ossec::email_alert
  * `$alert_email` email to send to
@@ -124,6 +121,7 @@ About active-response mechanism, check the documentation (and extends the functi
  * `$ossec_scanpaths` Specify hash of paths to scan, with realtime and report_changes (see below for configuration)
  * `$ossec_ip_fact` (default: ::ipaddress) allow override of the fact used to find the client's IP address.  This is useful for when you have multiple IP addresses on a given client and `::ipaddress` returns the incorrect IP for connection to the OSSEC server
  * `$ossec_package_status` (default: installed) Package status. See https://docs.puppetlabs.com/references/latest/type.html#package-attribute-ensure
+ * `$ossec_use_zookeeper` (default: true) To use zookeeper backend instead of authd
 
 ### ossec_scanpaths configuration
 
@@ -173,20 +171,20 @@ ossec::server::ossec_scanpaths:
 
 ## Limitations
 
-On RedHat-like systems, this module depends on the [Atomic repo](https://www6.atomicorp.com/channels/atomic/)
-to provide the OSSEC packages, and on the [EPEL repo](https://fedoraproject.org/wiki/EPEL) to provide
-a dependency, `inotify-tools`.
+**RHEL:**
+This is currently created for RHEL (RedHat Enterprise Linux) and requires the packages to be installable from a local repo. This does not work over the internet unless you add the correct repositories to the yum.repos.d..
 
-On Debian-like systems, this module depends on the [Alienvault repo](http://ossec.alienvault.com/repos/apt/debian/)
-to provide the OSSEC packages.
+**windows:**
+does not work yet
 
 ## Development
 
-This module was forked from `nzin/puppet-ossec` so I could package it for Puppet Forge. The
-original author is [not willing to maintain the code](https://github.com/nzin/puppet-ossec/issues/3)
-so please contribute to this fork.
+This module is currently forked from djjudas21/puppet-ossec (who forked it from nzin/puppet-ossec) and is used internally within ConclusionMC. Pull requests welcome.
 
 ## Release Notes
 
 Author Nicolas Zin
-Maintained by Jonathan Gazeley
+
+~~Maintained by Jonathan Gazeley~~
+
+Maintained by Conclusion Mission Critical
