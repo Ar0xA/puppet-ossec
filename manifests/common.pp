@@ -1,5 +1,10 @@
 # Package installation
-class ossec::common ( $ossec_override_keyfile       = false, ) {
+class ossec::common ( 
+$ossec_override_keyfile       = false, 
+$zookeeper_base_path          = "/puppet/production/nodes/",
+$ossec_use_zookeeper          = true,
+$ossec_package_status         = 'installed',
+) {
   case $::osfamily {
     'Redhat' : {
       $hidsagentservice  = 'ossec-hids'

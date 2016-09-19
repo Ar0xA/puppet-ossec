@@ -6,8 +6,6 @@ class ossec::client(
   $ossec_scanpaths         = [ {'path' => '/etc,/usr/bin,/usr/sbin', 'report_changes' => 'no', 'realtime' => 'no'}, {'path' => '/bin,/sbin', 'report_changes' => 'no', 'realtime' => 'no'} ],
   $ossec_client_ip         = $::ipaddress,
   $ossec_client_hostname   = $::fqdn,
-  $ossec_package_status    = 'installed',
-  $ossec_use_zookeeper     = true,
 ) {
   include ossec::common
 
@@ -21,10 +19,10 @@ class ossec::client(
   case $::osfamily {
     'RedHat' : {
         package { 'ossec-hids':
-            ensure  => $ossec_package_status,
+            ensure  => $ossec::common::ossec_package_status,
         }
         package { $ossec::common::hidsagentpackage:
-            ensure  => $ossec_package_status,
+            ensure  => $ossec::common::ossec_package_status,
             require => [
                 Package['ossec-hids']
             ]
@@ -85,7 +83,6 @@ class ossec::client(
     }
 
     ossec::create_store_agentkey{ "ossec_agent_${ossec_client_hostname}_client":
-        agent_use_zookeeper => $ossec_use_zookeeper,
         agent_name          => $ossec_client_hostname,
         agent_ip_address    => $ossec_client_ip,
         ossec_server_ip     =>$ossec_server_ip,
@@ -147,10 +144,9 @@ class ossec::client(
       notify  => Service['OssecSvc'],
     }
     ossec::create_store_agentkey{ "ossec_agent_${ossec_client_hostname}_client":
-      agent_use_zookeeper => $ossec_use_zookeeper,
       agent_name          => $ossec_client_hostname,
       agent_ip_address    => $ossec_client_ip,
-      ossec_server_ip     =>$ossec_server_ip,
+      ossec_server_ip     => $ossec_server_ip,
     }
 
   } else {

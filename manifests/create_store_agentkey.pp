@@ -1,19 +1,19 @@
 define ossec::create_store_agentkey(
-    $agent_use_zookeeper,
     $agent_name,
     $agent_ip_address,
     $ossec_server_ip,
 ) {
+    include ossec::common
     
-    if ($agent_use_zookeeper) {
+    if ($ossec::common::ossec_use_zookeeper) {
 
         include zk_puppet
         #does entry already exist? if so, why bother?
 
-        $zkexist = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys/${agent_name}/id",1)
+        $zkexist = zkget("${ossec::common::zookeeper_base_path}${ossec_server_ip}/client-keys/${agent_name}/id",1)
         if ($zkexist[0].empty) {
 
-            $zkagent_num = zkget("/puppet/production/nodes/${ossec_server_ip}/client-num",1)
+            $zkagent_num = zkget("${ossec::common::zookeeper_base_path}${ossec_server_ip}/client-num",1)
 
             #does not exist, so add it with value 1 (first agent)
             if ($zkagent_num[0].empty) {
@@ -24,10 +24,10 @@ define ossec::create_store_agentkey(
 
 
             #this info is used by both the client and master to generate the keys
-            zkput("/puppet/production/nodes/${ossec_server_ip}/client-keys/${agent_name}/ip",$agent_ip_address)
+            zkput("${ossec::common::zookeeper_base_path}${ossec_server_ip}/client-keys/${agent_name}/ip",$agent_ip_address)
             #so, whats our number then?
-            zkput("/puppet/production/nodes/${ossec_server_ip}/client-keys/${agent_name}/id",$zkagent_id)
-            zkput("/puppet/production/nodes/${ossec_server_ip}/client-num",$zkagent_id)
+            zkput("${ossec::common::zookeeper_base_path}${ossec_server_ip}/client-keys/${agent_name}/id",$zkagent_id)
+            zkput("${ossec::common::zookeeper_base_path}${ossec_server_ip}/client-num",$zkagent_id)
 
             if $zkagent_id {
                 concat { '/var/ossec/etc/client.keys':

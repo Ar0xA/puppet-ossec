@@ -19,7 +19,7 @@ class ossec::server (
   $ossec_database_type                 = undef,
   $ossec_database_username             = undef,
   $ossec_enable_authd                  = false,
-  $ossec_enable_zookeeper              = true,
+#  $ossec_enable_zookeeper              = true,
 ) {
   include ossec::common
   include mysql::client
@@ -148,28 +148,8 @@ class ossec::server (
     notify  => Service[$ossec::common::hidsserverservice]
   }
   
-  #do we want to run authd?
-  #TODO: use client signed certificates
-  if $ossec_enable_authd {
-      exec { 'make_authd_key_file':
-          command => '/bin/openssl genrsa -out /var/ossec/etc/sslmanager.key 2048',
-          unless  => '/bin/test -f /var/ossec/etc/sslmanager.key'
-      } ->
-      exec { 'make_authd_cert_file':
-          command => "/bin/openssl req -new -x509 -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 365 -subj \"/C=NL/ST=Utrecht/L=Utrecht/O=CMC/CN=${::domain}\"",
-          unless  => '/bin/test -f /var/ossec/etc/sslmanager.cert'
-      } ->
-      service {'ossec-authd':
-          ensure  => running,
-          start   => '/var/ossec/bin/ossec-authd -p 1515 >/dev/null 2>&1 &',
-          stop    => "/bin/kill $(/bin/ps aux | /bin/grep '/var/ossec/bin/ossec-authd' | /bin/awk '{print ${2}}')",
-          pattern => '/var/ossec/bin/ossec-authd',
-          require => Package[$ossec::common::hidsserverpackage],
-      }
-  }
-  
   #TODO: rewrite to zookeeper data storage and fill on rerun?
-  if $ossec::common::ossec_override_keyfile == false {
+  if $ossec::common::ossec_use_zookeeper == true {
       #here we make the client.keys file with data from zookeeper
 
       concat { '/var/ossec/etc/client.keys':
@@ -187,11 +167,11 @@ class ossec::server (
       $ossec_server_ip = $::ipaddress
       #TODO: check of alle keys er zijn
       
-      $resultsetzk = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys",0,'children')
+      $resultsetzk = zkget("${ossec::common::zookeeper_base_path}${ossec_server_ip}/client-keys",0,'children')
             
       $resultsetzk.each |String $peer| {
-          $agent_ip_address = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys/${peer}/ip",1)[0]
-          $zkagent_id = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys/${peer}/id",1)[0]
+          $agent_ip_address = zkget("${ossec::common::zookeeper_base_path}${ossec_server_ip}/client-keys/${peer}/ip",1)[0]
+          $zkagent_id = zkget("${ossec::common::zookeeper_base_path}${ossec_server_ip}/client-keys/${peer}/id",1)[0]
           $agent_name= $peer
           
           ossec::agentkey{ "ossec_agent_${agent_name}_client":
@@ -210,6 +190,25 @@ class ossec::server (
 
       
   } else {
+        #do we want to run authd
+      if $ossec_enable_authd {
+          exec { 'make_authd_key_file':
+              command => '/bin/openssl genrsa -out /var/ossec/etc/sslmanager.key 2048',
+              unless  => '/bin/test -f /var/ossec/etc/sslmanager.key'
+          } ->
+          exec { 'make_authd_cert_file':
+              command => "/bin/openssl req -new -x509 -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 365 -subj \"/C=NL/ST=Utrecht/L=Utrecht/O=CMC/CN=${::domain}\"",
+              unless  => '/bin/test -f /var/ossec/etc/sslmanager.cert'
+          } ->
+          service {'ossec-authd':
+              ensure  => running,
+              start   => '/var/ossec/bin/ossec-authd -p 1515 >/dev/null 2>&1 &',
+              stop    => "/bin/kill $(/bin/ps aux | /bin/grep '/var/ossec/bin/ossec-authd' | /bin/awk '{print ${2}}')",
+              pattern => '/var/ossec/bin/ossec-authd',
+              require => Package[$ossec::common::hidsserverpackage],
+          }
+      }
+
       #TODO: ugly hack, cant we use agentkey function? or perhaps just let it fill with the agent registration and restart of the service then
       exec {'fill_client_key':
           command => '/bin/echo "127.0.0.1,default" > /var/ossec/dftagent &&  /var/ossec/bin/manage_agents -f /dftagent && rm -f /var/ossec/dftagent',
