@@ -116,7 +116,9 @@ class ossec::client(
 
     #upload and compile custom selinux module for logrotate on the ossec.log file
     selinux::module {'ossec_logrotate':
-        source => 'puppet:///modules/ossec/ossec-logrotate.te',
+        source      => 'puppet:///modules/ossec/ossec-logrotate.te',
+        prefix      => '',
+        syncversion => false
     }
 
   } elsif $::osfamily == 'windows' {
