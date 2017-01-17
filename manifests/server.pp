@@ -110,13 +110,6 @@ class ossec::server (
     mode   => '0644',
     }
 
-    #upload and compile custom selinux module for logrotate on the ossec.log file
-    selinux::module {'ossec_logrotate':
-        source      => 'puppet:///modules/ossec/ossec-logrotate.te',
-        prefix      => '',
-        syncversion => false
-    }
-
   #if using database
   if $ossec_database {
     validate_string($ossec_database_hostname)
