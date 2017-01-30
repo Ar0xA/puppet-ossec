@@ -18,7 +18,7 @@ class ossec::common ( $ossec_override_keyfile       = false, ) {
         default: { }
       }
       package { 'inotify-tools':
-          ensure  => present,
+        ensure  => present,
       }
     }
 #	  'windows' : {
