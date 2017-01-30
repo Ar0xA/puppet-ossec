@@ -6,8 +6,10 @@ class ossec::client(
   $ossec_scanpaths         = [ {'path' => '/etc,/usr/bin,/usr/sbin', 'report_changes' => 'no', 'realtime' => 'no'}, {'path' => '/bin,/sbin', 'report_changes' => 'no', 'realtime' => 'no'} ],
   $ossec_client_ip         = $::ipaddress,
   $ossec_client_hostname   = $::fqdn,
+  $ossec_client_id         = undef,
+  $ossec_client_key        = undef,
   $ossec_package_status    = 'installed',
-  $ossec_use_zookeeper     = true,
+  $ossec_use_hiera         = true,
 ) {
   include ossec::common
 
@@ -85,10 +87,12 @@ class ossec::client(
     }
 
     ossec::create_store_agentkey{ "ossec_agent_${ossec_client_hostname}_client":
-        agent_use_zookeeper => $ossec_use_zookeeper,
-        agent_name          => $ossec_client_hostname,
-        agent_ip_address    => $ossec_client_ip,
-        ossec_server_ip     =>$ossec_server_ip,
+        agent_use_hiera  => $ossec_use_hiera,
+        agent_name       => $ossec_client_hostname,
+        agent_id         => $ossec_client_id,
+        agent_ip_address => $ossec_client_ip,
+        agent_key        => $ossec_client_key,
+        ossec_server_ip  => $ossec_server_ip,
     }
 
 
@@ -142,10 +146,10 @@ class ossec::client(
       notify  => Service['OssecSvc'],
     }
     ossec::create_store_agentkey{ "ossec_agent_${ossec_client_hostname}_client":
-      agent_use_zookeeper => $ossec_use_zookeeper,
-      agent_name          => $ossec_client_hostname,
-      agent_ip_address    => $ossec_client_ip,
-      ossec_server_ip     =>$ossec_server_ip,
+      agent_use_hiera  => $ossec_use_hiera,
+      agent_name       => $ossec_client_hostname,
+      agent_ip_address => $ossec_client_ip,
+      ossec_server_ip  => $ossec_server_ip,
     }
 
   } else {

@@ -187,12 +187,14 @@ class ossec::server (
       $resultsetzk.each |String $peer| {
           $agent_ip_address = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys/${peer}/ip",1)[0]
           $zkagent_id = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys/${peer}/id",1)[0]
+          $agent_key = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys/${peer}/key",1)[0]
           $agent_name= $peer
           
           ossec::agentkey{ "ossec_agent_${agent_name}_client":
             agent_id         => $zkagent_id,
             agent_name       => $agent_name,
             agent_ip_address => $agent_ip_address,
+            agent_key        => $agent_key,
           }
 
       }
