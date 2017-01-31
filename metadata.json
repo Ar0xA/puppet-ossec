@@ -1,12 +1,12 @@
 {
-  "name": "jgazeley-ossec",
-  "version": "1.9",
+  "name": "ConclusionMC-ossec",
+  "version": "2.0",
   "author": "jgazeley",
   "summary": "Install and configure OSSEC-HIDS client and server",
   "license": "Apache-2.0",
-  "source": "https://github.com/djjudas21/puppet-ossec",
-  "project_page": "https://github.com/djjudas21/puppet-ossec",
-  "issues_url": "https://github.com/djjudas21/puppet-ossec/issues",
+  "source": "https://github.com/ConclusionMC/puppet-ossec",
+  "project_page": "https://github.com/ConclusionMC/puppet-ossec",
+  "issues_url": "https://github.com/ConclusionMC/puppet-ossec/issues",
   "operatingsystem_support": [
     {
       "operatingsystem": "RedHat",
@@ -35,10 +35,6 @@
     },
     {
       "name": "puppetlabs/concat",
-      "version_range": ">= 1.0.0"
-    },
-    {
-      "name": "stahnma/epel",
       "version_range": ">= 1.0.0"
     },
     {
