@@ -30,9 +30,11 @@ class ossec::client(
     'RedHat' : {
       package { 'ossec-hids':
         ensure  => $ossec_package_status,
+        install_options => [ '--setopt=obsoletes=0' ]
       }
       package { $ossec::common::hidsagentpackage:
         ensure  => $ossec_package_status,
+        install_options => [ '--setopt=obsoletes=0' ],
         require => Package['ossec-hids']
       }
     }
