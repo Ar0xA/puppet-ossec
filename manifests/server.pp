@@ -180,7 +180,7 @@ class ossec::server (
     #get client info
     #generate client key
     #add key to file
-    $ossec_server_ip = $::fqdn
+    $ossec_server_ip = $::ipaddress
     #TODO: check of alle keys er zijn
     $resultsetzk = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys",0,'children')
     $resultsetzk.each |String $peer| {
