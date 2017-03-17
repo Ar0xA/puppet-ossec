@@ -27,6 +27,7 @@ class ossec::server (
   $ossec_database_username             = undef,
   $ossec_enable_authd                  = false,
   $ossec_enable_zookeeper              = true,
+  $ossec_log_to_json                   = false,
 ) {
   include ossec::common
   include mysql::client
@@ -179,7 +180,7 @@ class ossec::server (
     #get client info
     #generate client key
     #add key to file
-    $ossec_server_ip = $::ipaddress
+    $ossec_server_ip = $::fqdn
     #TODO: check of alle keys er zijn
     $resultsetzk = zkget("/puppet/production/nodes/${ossec_server_ip}/client-keys",0,'children')
     $resultsetzk.each |String $peer| {

@@ -8,6 +8,9 @@
 	<host_information><%= @ossec_global_host_information_level %></host_information>
   <% @ossec_white_list.each do |ipaddress| -%><white_list><%= ipaddress %></white_list>
   <% end %>
+  <% if @ossec_log_to_json %>
+  <jsonout_output>yes</jsonout_output>
+  <% end %>
   </global>
 
   <rules>
