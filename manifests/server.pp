@@ -27,6 +27,7 @@ class ossec::server (
   $ossec_database_username             = undef,
   $ossec_enable_authd                  = false,
   $ossec_enable_zookeeper              = true,
+  $ossec_log_to_json                   = false,
 ) {
   include ossec::common
   include mysql::client
