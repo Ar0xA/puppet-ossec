@@ -1,9 +1,12 @@
 # Package installation
-class ossec::common ( $ossec_override_keyfile       = false, ) {
+class ossec::common ( 
+$ossec_override_keyfile       = false, 
+$ossec_hidsagentpackage = 'ossec-hids-client',
+) {
   case $::osfamily {
     'Redhat' : {
       $hidsagentservice  = 'ossec-hids'
-      $hidsagentpackage  = 'ossec-hids-client'
+      $hidsagentpackage  = $ossec_hidsagentpackage
       $hidsserverservice = 'ossec-hids'
       $hidsserverpackage = 'ossec-hids-server'
       $hidsmysqlpackage  = 'ossec-hids-mysql'
