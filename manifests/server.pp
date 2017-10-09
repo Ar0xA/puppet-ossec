@@ -30,7 +30,6 @@ class ossec::server (
   $ossec_log_to_json                   = false,
 ) {
   include ossec::common
-  include mysql::client
 
   # install package
   case $::osfamily {
