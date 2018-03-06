@@ -1,7 +1,7 @@
 {
-  "name": "ConclusionMC-ossec",
+  "name": "cmc-ossec",
   "version": "2.1.1",
-  "author": "ConclusionMC",
+  "author": "Conclusion Mission Critical",
   "summary": "Install and configure OSSEC-HIDS client and server",
   "license": "Apache-2.0",
   "source": "https://github.com/ConclusionMC/puppet-ossec",
